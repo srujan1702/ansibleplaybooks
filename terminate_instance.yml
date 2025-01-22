@@ -1,0 +1,18 @@
+---
+- name: Terminate EC2 instance on AWS
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Terminate EC2 instance
+      amazon.aws.ec2_instance:
+        region: us-east-1
+        instance_ids:
+          - i-0xxxxxxxxxxxxxxxx 
+        state: absent  
+        wait: yes  
+      register: terminated_instance
+
+    - name: Output termination status
+      debug:
+        msg: "Instance {{ ec2_instance_id }} has been terminated."
+

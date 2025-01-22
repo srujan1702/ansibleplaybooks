@@ -1,0 +1,25 @@
+---
+- name: Create an EC2 instance
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Launch EC2 instance
+      amazon.aws.ec2_instance:
+        key_name: "your-key-name" 
+        instance_type: t2.micro    
+        image_id: ami-xxxxxxxxxxxx 
+        region: us-east-1         
+        count: 1                 
+        wait: yes                 
+        state: present             
+        instance_tags:
+          Name: "ansible-created-server"
+        register:ec2_info
+  
+    - name: Output EC2 instance information
+      debug:
+        msg:
+          - "Instance ID: {{ ec2_info.instances[0].id }}"
+          - "Public IP: {{ ec2_info.instances[0].public_ip }}"
+          - "Private IP: {{ ec2_info.instances[0].private_ip }}"
+
