@@ -1,0 +1,12 @@
+---
+- name: Install Apache on EC2
+  hosts: localhost
+  tasks:
+    - name: Install Apache
+      shell: sudo yum install httpd -y
+
+    - name: Start Apache
+      shell: sudo systemctl start httpd
+
+    - name: Enable Apache
+      shell: sudo systemctl enable httpd
