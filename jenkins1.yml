@@ -1,0 +1,62 @@
+---
+- name: Install Jenkins on EC2 instance
+  hosts: all
+  become: true
+  tasks:
+    - name: Ensure all packages are up to date
+      yum:
+        name: "*"
+        state: latest
+
+    - name: Add Jenkins repository
+      get_url:
+        url: https://pkg.jenkins.io/redhat-stable/jenkins.repo
+        dest: /etc/yum.repos.d/jenkins.repo
+        mode: '0644'
+
+    - name: Import Jenkins repository key
+      rpm_key:
+        state: present
+        key: https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+
+    - name: Upgrade yum packages
+      yum:
+        name: "*"
+        state: latest
+
+    - name: Install Amazon Corretto 17 (Java 17)
+      dnf:
+        name: java-17-amazon-corretto
+        state: present
+
+    - name: Install Jenkins
+      yum:
+        name: jenkins
+        state: present
+
+    - name: Enable Jenkins service to start on boot
+      systemd:
+        name: jenkins
+        enabled: true
+
+    - name: Start Jenkins service
+      systemd:
+        name: jenkins
+        state: started
+
+    - name: Display Jenkins service status
+      command: systemctl status jenkins
+      register: jenkins_status
+      changed_when: false
+
+    - name: Show Jenkins service status
+      debug:
+        msg: "{{ jenkins_status.stdout }}"
+
+    - name: Get the Jenkins initial admin password
+      command: cat /var/lib/jenkins/secrets/initialAdminPassword
+      register: jenkins_admin_password
+
+    - name: Display Jenkins initial admin password
+      debug:
+        msg: "Jenkins initial admin password is: {{ jenkins_admin_password.stdout }}"
